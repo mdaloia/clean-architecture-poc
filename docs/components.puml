@@ -1,0 +1,141 @@
+@startuml
+
+title __Clean Architecture - Class Diagram__\n
+  
+  package UseCase {
+
+    together {
+      class ShippingCostInteractor {
+          + calculateShippingCost()
+      }
+
+      class ShippingCostResolver {
+          + getCost()
+      }
+    }
+
+    together {
+      interface GetShippingCostInput {
+          {abstract} + calculateShippingCost()
+      }
+
+      interface GetShippingCostOutput {
+          {abstract} + render()
+      }
+    }
+
+    class GetShippingCostInputModel {
+        - userId : Long
+        - itemId : String
+        + GetShippingCostInputModel()
+        + getUserId()
+        + getItemId()
+    }
+
+    class GetShippingCostOutputModel {
+        - userId : Long
+        - itemId : String
+        - loyaltyLevel : String
+        - price : BigDecimal
+        - shippingCost : BigDecimal
+        + GetShippingCostOutputModel()
+        + getUserId()
+        + getItemId()
+        + getLoyaltyLevel()
+        + getPrice()
+        + getShippingCost()
+    }
+
+    together {
+      interface ItemDataAccess {
+          {abstract} + getItem()
+      }
+
+      interface UserDataAccess {
+          {abstract} + getUser()
+      }
+    }
+  }
+
+  package Entities {
+    class Item {
+        - id : String
+        + Item()
+        + getId()
+        + getPrice()
+    }
+
+    class LoyaltyLevel {
+        - level : Integer
+        + LoyaltyLevel()
+        + getLevel()
+    }
+
+    class Price {
+        - value : BigDecimal
+        + Price()
+        + getValue()
+    }
+
+    class ShippingCost {
+        - cost : BigDecimal
+        + ShippingCost()
+        + getCost()
+    }
+
+    class User {
+        - id : Long
+        + User()
+        + getId()
+        + getLoyaltyLevel()
+    }
+  }
+
+  package InputOutput {
+    class GetShippingCostController {
+        + handle()
+        - validateParams()
+    }
+
+    class GetShippingCostPresenter {
+        + render()
+    }
+  }
+
+  package DataAccess {
+    class ItemApiDataAccess {
+        + getItem()
+    }
+
+    class UserApiDataAccess {
+        + getUser()
+    }
+  }
+
+
+  ShippingCostResolver --> User
+  ShippingCostResolver --> Item
+  ShippingCostResolver --> ShippingCost
+
+  GetShippingCostInput --> GetShippingCostInputModel
+  GetShippingCostOutput --> GetShippingCostOutputModel
+
+  ShippingCostInteractor -up-|> GetShippingCostInput
+  ShippingCostInteractor o-- UserDataAccess : userDataAccess
+  ShippingCostInteractor o-- ItemDataAccess : itemDataAccess
+  ShippingCostInteractor o-- ShippingCostResolver : resolver
+  ShippingCostInteractor o-- GetShippingCostOutput : output
+
+  Item o-- Price : price
+  User o-- LoyaltyLevel : loyaltyLevel
+
+  GetShippingCostController o-- GetShippingCostInput : input
+  GetShippingCostPresenter -up-|> GetShippingCostOutput
+
+  ItemApiDataAccess -up-|> ItemDataAccess
+  UserApiDataAccess -up-|> UserDataAccess
+
+  ItemDataAccess --> Item
+  UserDataAccess --> User
+
+@enduml

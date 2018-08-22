@@ -1,0 +1,33 @@
+@startuml
+
+title Clean Architecture - Sequence Diagram
+
+Client->GetShippingCostController: handle(req, resp)
+GetShippingCostController->GetShippingCostController: validateParams()
+GetShippingCostController->ShippingCostInteractor: calculateShippingCost(inputModel)
+activate ShippingCostInteractor
+
+ShippingCostInteractor->UserDataAccess: getUser(userId)
+activate UserDataAccess
+UserDataAccess-->ShippingCostInteractor: user
+deactivate UserDataAccess
+
+ShippingCostInteractor->ItemDataAccess: getItem(itemId)
+activate ItemDataAccess
+ItemDataAccess-->ShippingCostInteractor: item
+deactivate ItemDataAccess
+
+ShippingCostInteractor->ShippingCostResolver: getCost(user, item)
+activate ShippingCostResolver
+ShippingCostResolver-->ShippingCostInteractor: shippingCost
+deactivate ShippingCostResolver
+
+ShippingCostInteractor->GetShippingCostPresenter: provide(outputModel)
+
+activate GetShippingCostPresenter
+GetShippingCostPresenter->ShippingCostView: render(viewModel)
+
+deactivate GetShippingCostPresenter
+deactivate ShippingCostInteractor
+
+@enduml
